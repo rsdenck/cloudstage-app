@@ -97,5 +97,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-import Link from "next/link";

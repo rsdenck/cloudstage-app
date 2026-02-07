@@ -7,18 +7,21 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const session = await getServerSession(authOptions);
   
-  // Public users only see collections with published documents
-  // But for now, let's return all collections and filter documents later
-  const collections = await prisma.collection.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: {
-        select: { nodes: true }
+  try {
+    const collections = await prisma.collection.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: { nodes: true }
+        }
       }
-    }
-  });
-  
-  return NextResponse.json(collections);
+    });
+    
+    return NextResponse.json(collections);
+  } catch (error) {
+    console.error("GET /api/collections error:", error);
+    return NextResponse.json([], { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {

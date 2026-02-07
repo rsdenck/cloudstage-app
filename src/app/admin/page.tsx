@@ -12,14 +12,20 @@ export default async function AdminDashboard() {
     redirect("/admin/login");
   }
 
-  const collections = await prisma.collection.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: {
-        select: { nodes: true },
+  let collections = [];
+  try {
+    collections = await prisma.collection.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: {
+          select: { nodes: true },
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.error("Erro ao buscar coleções:", error);
+    // collections continua como array vazio
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">

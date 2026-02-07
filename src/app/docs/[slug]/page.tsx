@@ -10,21 +10,27 @@ export default async function CollectionPage({
 }) {
   const { slug } = await params;
   
-  const collection = await prisma.collection.findUnique({
-    where: { slug },
-    include: {
-      nodes: {
-        where: {
-          type: "DOCUMENT",
-          document: {
-            status: "PUBLISHED"
-          }
-        },
-        take: 1,
-        orderBy: { position: "asc" }
+  let collection = null;
+  try {
+    collection = await prisma.collection.findUnique({
+      where: { slug },
+      include: {
+        nodes: {
+          where: {
+            type: "DOCUMENT",
+            document: {
+              status: "PUBLISHED"
+            }
+          },
+          take: 1,
+          orderBy: { position: "asc" }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    console.error("Erro ao carregar coleção:", error);
+    // collection permanece null, cairá no notFound()
+  }
 
   if (!collection) notFound();
 

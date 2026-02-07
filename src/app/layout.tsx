@@ -26,43 +26,47 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const host = headersList.get("host") || "";
-
-  // Check if we are on a custom domain
-  const collectionForDomain = await prisma.collection.findUnique({
-    where: { customDomain: host },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-    },
-  });
-
   let collections = [];
   
-  if (collectionForDomain) {
-    // If on a custom domain, only show that collection
-    collections = [collectionForDomain];
-  } else {
-    // If on main domain, show all collections that don't have a custom domain
-    // (or show all for now if no custom domain is set)
-    collections = await prisma.collection.findMany({
-      where: {
-        OR: [
-          { customDomain: null },
-          { customDomain: "" }
-        ]
-      },
+  try {
+    const headersList = await headers();
+    const host = headersList.get("host") || "";
+
+    // Check if we are on a custom domain
+    const collectionForDomain = await prisma.collection.findUnique({
+      where: { customDomain: host },
       select: {
         id: true,
         name: true,
         slug: true,
       },
-      orderBy: {
-        name: "asc",
-      },
     });
+
+    if (collectionForDomain) {
+      // If on a custom domain, only show that collection
+      collections = [collectionForDomain];
+    } else {
+      // If on main domain, show all collections that don't have a custom domain
+      collections = await prisma.collection.findMany({
+        where: {
+          OR: [
+            { customDomain: null },
+            { customDomain: "" }
+          ]
+        },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Erro ao carregar coleções:", error);
+    // collections remains empty array
   }
 
   return (

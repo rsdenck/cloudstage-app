@@ -1,0 +1,254 @@
+================================================================================
+DOCUMENTAÇÃO TÉCNICA DO SISTEMA
+================================================================================
+
+PROJETO:
+Plataforma Web com estrutura hierárquica de grupos, controle de publicação
+(Admin / Público), autenticação e permissões, inspirada no modelo do GitHub.
+
+STACK:
+- Node.js (LTS)
+- Next.js (App Router)
+- PostgreSQL
+- Prisma ORM
+- NextAuth (JWT)
+- Nginx (Reverse Proxy)
+
+================================================================================
+ETAPA 1 — CONCEITO DA ARQUITETURA
+================================================================================
+
+O sistema é dividido em duas áreas principais:
+
+1. ÁREA PÚBLICA
+   - Conteúdo publicado
+   - Visualização de grupos, subgrupos e itens públicos
+   - Não requer autenticação para leitura
+
+2. ÁREA ADMINISTRATIVA
+   - Criação e edição de grupos e subgrupos
+   - Controle de publicação
+   - Gerenciamento de permissões
+   - Acesso restrito a usuários autenticados
+
+O modelo segue a lógica:
+
+Grupo
+ └── Subgrupo
+      └── Subgrupo
+           └── Conteúdo
+
+Cada nível herda permissões do nível superior.
+
+================================================================================
+ETAPA 2 — ESTRUTURA DE PASTAS (NEXT.JS APP ROUTER)
+================================================================================
+
+/app
+ ├── (public)
+ │    ├── page.tsx
+ │    └── grupos/
+ │         └── [slug]/
+ │              └── page.tsx
+ │
+ ├── (admin)
+ │    ├── layout.tsx
+ │    ├── dashboard/
+ │    │    └── page.tsx
+ │    ├── grupos/
+ │    │    ├── page.tsx
+ │    │    └── [id]/
+ │    │         └── page.tsx
+ │    └── usuarios/
+ │         └── page.tsx
+ │
+ ├── api/
+ │    ├── auth/
+ │    │    └── [...nextauth]/route.ts
+ │    └── grupos/
+ │         └── route.ts
+ │
+ └── layout.tsx
+
+/pisma
+ └── schema.prisma
+
+================================================================================
+ETAPA 3 — MODELAGEM DO BANCO DE DADOS (POSTGRESQL)
+================================================================================
+
+ENTIDADES PRINCIPAIS:
+
+- User
+- Group
+- Permission
+- GroupMembership
+- Content
+
+RELACIONAMENTOS:
+- Um usuário pode pertencer a vários grupos
+- Um grupo pode ter vários subgrupos
+- Um grupo pode conter conteúdos
+- Permissões são associadas por grupo
+
+================================================================================
+ETAPA 4 — PRISMA SCHEMA
+================================================================================
+
+model User {
+  id            String   @id @default(uuid())
+  name          String?
+  email         String   @unique
+  passwordHash  String
+  memberships   GroupMembership[]
+  createdAt     DateTime @default(now())
+}
+
+model Group {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  parentId    String?
+  parent      Group?   @relation("GroupHierarchy", fields: [parentId], references: [id])
+  children    Group[]  @relation("GroupHierarchy")
+  contents    Content[]
+  memberships GroupMembership[]
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model GroupMembership {
+  id       String @id @default(uuid())
+  userId   String
+  groupId  String
+  role     Role
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+}
+
+model Content {
+  id        String   @id @default(uuid())
+  title     String
+  body      String
+  groupId   String
+  published Boolean  @default(false)
+
+  group Group @relation(fields: [groupId], references: [id])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+================================================================================
+ETAPA 5 — AUTENTICAÇÃO (NEXTAUTH COM JWT)
+================================================================================
+
+PADRÃO:
+- Login por credenciais
+- Sessão via JWT
+- Controle de acesso por role
+
+Fluxo:
+1. Usuário faz login
+2. Token JWT é gerado
+3. Token contém userId e role
+4. Middleware valida permissões
+
+================================================================================
+ETAPA 6 — MIDDLEWARE DE PROTEÇÃO
+================================================================================
+
+/middleware.ts
+
+- Bloqueia acesso a rotas /admin sem autenticação
+- Valida permissões conforme role
+- Redireciona usuários não autorizados
+
+Exemplo de regra:
+- VIEWER: leitura
+- EDITOR: criar/editar conteúdo
+- ADMIN: gerenciar grupos
+- OWNER: controle total
+
+================================================================================
+ETAPA 7 — CONTROLE DE PUBLICAÇÃO
+================================================================================
+
+Regras:
+- Conteúdo só aparece na área pública se published = true
+- Grupos não publicados não são visíveis publicamente
+- Subgrupos herdam visibilidade do grupo pai
+
+Admin pode:
+- Publicar / despublicar grupo
+- Publicar / despublicar conteúdo
+
+================================================================================
+ETAPA 8 — API REST INTERNA (NEXT ROUTES)
+================================================================================
+
+Endpoints principais:
+
+POST   /api/grupos        -> criar grupo
+GET    /api/grupos        -> listar grupos
+PATCH  /api/grupos/:id    -> atualizar grupo
+DELETE /api/grupos/:id    -> remover grupo
+
+GET    /api/public/grupos -> listar grupos públicos
+
+Todas as rotas administrativas exigem autenticação.
+
+================================================================================
+ETAPA 9 — ÁREA ADMINISTRATIVA
+================================================================================
+
+Dashboard:
+- Visão geral
+- Estatísticas
+- Atalhos
+
+Gerenciamento:
+- Criar grupos e subgrupos
+- Atribuir usuários a grupos
+- Definir permissões
+- Publicar conteúdo
+
+================================================================================
+ETAPA 10 — ÁREA PÚBLICA
+================================================================================
+
+Características:
+- Navegação em árvore
+- URLs amigáveis
+- Conteúdo somente leitura
+- SEO-friendly
+
+Exemplo de URL:
+/docs/backend/auth/jwt
+
+================================================================================
+ETAPA 11 — SEGURANÇA
+================================================================================
+
+- JWT assinado
+- Cookies HttpOnly
+- Validação de permissões no backend
+- Nginx como camada adicional de proteção
+
+================================================================================
+ETAPA 12 — ESCALABILIDADE
+================================================================================
+
+- Estrutura modular
+- Permissões herdáveis
+- Banco relacional preparado para crescimento
+- Compatível com cache e CDN
+
+================================================================================
+FIM DA DOCUMENTAÇÃO
+================================================================================

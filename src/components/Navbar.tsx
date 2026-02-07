@@ -28,14 +28,14 @@ export function Navbar({ collections }: NavbarProps) {
   return (
     <nav className="h-14 border-b border-border bg-navbar flex items-center justify-between px-4 sticky top-0 z-50">
       <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
-        <Link href="/" className="flex items-center gap-2 font-semibold text-lg shrink-0">
-          <div className="p-1.5 bg-green-500/10 rounded-lg">
-            <Cloud className="w-5 h-5 text-green-500" />
+        <Link href="/" className="flex items-center gap-2 shrink-0 group">
+          <div className="p-1.5 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-all">
+            <Cloud className="w-5 h-5 text-green-500 fill-green-500/20" />
           </div>
-          <span className="text-md font-bold tracking-tight text-white">cloudstage</span>
+          <span className="text-md font-bold tracking-tight text-white group-hover:text-green-400 transition-colors">cloudstage</span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="flex items-center gap-1">
           <Link
             href="/"
             className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-all whitespace-nowrap group"
@@ -44,13 +44,12 @@ export function Navbar({ collections }: NavbarProps) {
             <span>Home</span>
           </Link>
 
-          {collections.map((item) => (
+          {!session && collections.map((item) => (
             <Link
               key={item.id}
               href={`/docs/${item.slug}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-all whitespace-nowrap group"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] text-slate-400 hover:text-green-400 transition-all whitespace-nowrap group"
             >
-              <Layout className="w-4 h-4 text-slate-500 group-hover:text-green-400" />
               <span>{item.name}</span>
             </Link>
           ))}

@@ -39,12 +39,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4">
-      <div className="w-full max-w-[320px] space-y-6">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-br from-green-900 to-black rounded-lg mb-4 shadow-2xl shadow-green-500/10">
-            <Cloud className="w-5 h-5 text-green-500" />
+    <div className="min-h-screen flex items-center justify-center bg-[#050505] relative overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070" 
+          alt="Mountain Background" 
+          className="w-full h-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
+      </div>
+
+      <div className="w-full max-w-[320px] space-y-6 z-10 relative">
+        {/* Logo and Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center p-4 bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl mb-4 shadow-2xl">
+            <Cloud className="w-12 h-12 text-green-500 fill-green-500/10" />
           </div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">cloudstage</h1>
+          <p className="text-zinc-500 mt-2 text-sm font-medium">Painel Administrativo</p>
         </div>
 
         {error && (

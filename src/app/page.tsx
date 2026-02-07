@@ -18,60 +18,34 @@ export default async function Home() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12">
-      <header className="mb-12">
-        <h1 className="text-4xl font-extrabold text-white mb-4 tracking-tight">
-          Documentação
-        </h1>
-        <p className="text-lg text-zinc-400">
-          Explore nossos conjuntos de documentação, guias e referências técnicas.
-        </p>
-      </header>
+    <div className={`min-h-[calc(100vh-3.5rem)] relative overflow-hidden ${collections.length === 0 ? 'bg-[#050505]' : 'bg-black'}`}>
+      {/* Background Image for Empty State */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070" 
+          alt="Mountain Background" 
+          className="w-full h-full object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
+      </div>
 
-      {collections.length === 0 ? (
-        <div className="bg-[#0A0A0A] border border-dashed border-white/5 rounded-2xl p-12 text-center">
-          <Layers className="w-12 h-12 text-zinc-800 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white mb-2">
-            Nenhuma coleção encontrada
-          </h2>
-          <p className="text-zinc-500 mb-6">
-            Ainda não há documentação pública disponível.
-          </p>
-          <Link
-            href="/admin"
-            className="text-green-500 font-medium hover:text-green-400 transition-colors"
-          >
-            Ir para área administrativa
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {collections.map((collection) => (
-            <Link
-              key={collection.id}
-              href={`/docs/${collection.slug}`}
-              className="group bg-[#0A0A0A] border border-white/5 rounded-2xl p-6 hover:border-green-500/30 transition-all shadow-2xl"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-green-900/10 text-green-500 rounded-xl group-hover:bg-green-600 group-hover:text-white transition-all">
-                  <BookOpen className="w-6 h-6" />
-                </div>
-                <ChevronRight className="w-5 h-5 text-zinc-700 group-hover:text-green-500 transition-colors" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2 group-hover:text-green-400 transition-colors tracking-tight">
-                {collection.name}
-              </h3>
-              <p className="text-zinc-500 text-sm mb-4 line-clamp-2 leading-relaxed">
-                {collection.description || "Sem descrição disponível."}
+      <div className={`max-w-5xl mx-auto px-6 py-12 w-full z-10 relative`}>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
+          {collections.length > 0 ? (
+            <div className="space-y-4">
+              <h1 className="text-5xl font-extrabold text-white tracking-tighter">
+                Explore a <span className="text-green-500">Documentação</span>
+              </h1>
+              <p className="text-zinc-400 text-lg max-w-2xl">
+                Selecione um dos módulos acima na barra de navegação para começar.
               </p>
-              <div className="flex items-center text-xs text-zinc-600 font-medium">
-                <Layers className="w-3.5 h-3.5 mr-1.5" />
-                {collection._count.nodes} itens
-              </div>
-            </Link>
-          ))}
+            </div>
+          ) : (
+            /* Empty state placeholder */
+            <div className="min-h-[60vh]"></div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

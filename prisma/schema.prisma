@@ -3,25 +3,25 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-
-enum NodeType {
-  FOLDER
-  DOCUMENT
-}
-
-enum PublishStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
   ADMIN
   EDITOR
   VIEWER
+}
+
+enum NodeType {
+  FOLDER
+  PAGE
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 model User {
@@ -34,61 +34,55 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model Site {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  domain      String?      @unique // Ex: docs.empresa.com
+  status      PublishStatus @default(DRAFT)
+  collections Collection[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
 model Collection {
-  id           String   @id @default(cuid())
-  name         String
-  description  String?
-  slug         String   @unique
-  customDomain String?  @unique
-  nodes        Node[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(cuid())
+  siteId    String
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  isDefault Boolean  @default(false)
+  nodes     Node[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([siteId, slug])
 }
 
 model Node {
-  id           String     @id @default(cuid())
+  id           String       @id @default(cuid())
+  collectionId String
+  collection   Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       Node?        @relation("NodeTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children     Node[]       @relation("NodeTree")
+  type         NodeType
   name         String
   slug         String
-  type         NodeType
-  parentId     String?
-  parent       Node?      @relation("NodeToNode", fields: [parentId], references: [id], onDelete: Cascade)
-  children     Node[]     @relation("NodeToNode")
-  collectionId String
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  position     Int        @default(0)
-  document     Document?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  order        Int          @default(0)
+  published    Boolean      @default(false)
+  content      PageContent?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  @@unique([parentId, slug])
+  @@unique([collectionId, parentId, slug])
 }
 
-model Document {
-  id            String         @id @default(cuid())
-  nodeId        String         @unique
-  node          Node           @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-  content       String
-  status        PublishStatus  @default(DRAFT)
-  versions      Version[]
-  codeBlocks    CodeBlock[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-}
-
-model Version {
-  id            String   @id @default(cuid())
-  documentId    String
-  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  content       String
-  versionNumber Int
-  createdAt     DateTime @default(now())
-}
-
-model CodeBlock {
+model PageContent {
   id         String   @id @default(cuid())
-  documentId String
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  language   String
-  content    String
-  createdAt  DateTime @default(now())
+  nodeId     String   @unique
+  node       Node     @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  markdown   String   @db.Text
+  htmlCache  String?  @db.Text
+  updatedAt  DateTime @updatedAt
 }

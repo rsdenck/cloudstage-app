@@ -18,7 +18,7 @@ export default async function AdminDashboard() {
       orderBy: { createdAt: "desc" },
       include: {
         _count: {
-          select: { nodes: true },
+          select: { spaces: true },
         },
       },
     });
@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
                       <span>Domínio padrão</span>
                     )}
                     <span>•</span>
-                    <span>{collection._count.nodes} itens</span>
+                    <span>{collection._count.spaces} espaços</span>
                   </div>
                 </div>
               </div>

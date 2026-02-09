@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getAdminSidebarData } from "@/lib/admin";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,50 +33,30 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let collections = [];
+  const session = await getServerSession(authOptions);
+  const headersList = await headers();
+  const host = headersList.get("host") || "";
   
-  try {
-    const headersList = await headers();
-    const host = headersList.get("host") || "";
+  // Identificar se é o domínio de administração
+  const isAdminDomain = host.startsWith("app.cloudstage.com.br") || 
+                       host.startsWith("admin.cloudstage.com.br") ||
+                       host.includes("localhost");
 
-    // Check if we are on a custom domain
-    const collectionForDomain = await prisma.collection.findUnique({
-      where: { customDomain: host },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-      },
-    });
+  let sidebarData: any[] = [];
+  let navbarCollections: any[] = [];
 
-    if (collectionForDomain) {
-      // If on a custom domain, only show that collection
-      collections = [collectionForDomain];
-    } else {
-      // If on main domain, show all collections that don't have a custom domain
-      collections = await prisma.collection.findMany({
-        where: {
-          OR: [
-            { customDomain: null },
-            { customDomain: "" }
-          ]
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-        orderBy: {
-          name: "asc",
-        },
-      });
-    }
-  } catch (error) {
-    console.error("Erro ao carregar coleções:", error);
-    // collections remains empty array
+  if (session && isAdminDomain) {
+    sidebarData = await getAdminSidebarData();
   }
 
-  const session = await getServerSession(authOptions);
+  // Lógica Simplificada para o Navbar (usada para navegação rápida entre sites/coleções)
+  try {
+    navbarCollections = await prisma.collection.findMany({
+      take: 5,
+      select: { id: true, name: true, slug: true },
+      orderBy: { updatedAt: "desc" }
+    });
+  } catch (e) {}
 
   return (
     <html lang="pt-BR">
@@ -84,9 +65,9 @@ export default async function RootLayout({
       >
         <Providers>
           <div className="min-h-screen flex flex-col">
-            <Navbar collections={collections} />
+            <Navbar collections={navbarCollections} />
             <div className="flex flex-1 overflow-hidden">
-              {session && <AdminSidebar collections={collections} />}
+              {session && isAdminDomain && <AdminSidebar sites={sidebarData} />}
               <main className="flex-1 overflow-y-auto no-scrollbar relative">
                 {children}
               </main>

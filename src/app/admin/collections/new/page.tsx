@@ -56,8 +56,8 @@ export default function NewCollectionPage() {
             <BookPlus className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Nova Categoria</h1>
-            <p className="text-slate-400 text-sm">Crie um novo espaço para sua documentação.</p>
+            <h1 className="text-2xl font-bold text-white">Nova Coleção</h1>
+            <p className="text-slate-400 text-sm">Crie um novo agrupamento para seus espaços de documentação.</p>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ export default function NewCollectionPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-slate-300 mb-2">
-              Nome da Categoria
+              Nome da Coleção
             </label>
             <input
               type="text"
@@ -78,7 +78,7 @@ export default function NewCollectionPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-2 bg-black border border-white/5 rounded-lg focus:border-green-500/50 focus:ring-1 focus:ring-green-500/50 outline-none transition-all text-white placeholder:text-zinc-700"
-              placeholder="Ex: Documentação Interna, API Pública..."
+              placeholder="Ex: Documentação de Produto, APIs Externas..."
             />
           </div>
 
@@ -95,7 +95,7 @@ export default function NewCollectionPage() {
                 placeholder="Ex: docs.suaempresa.com"
               />
               <p className="mt-1.5 text-[11px] text-zinc-500">
-                Se definido, esta categoria responderá apenas neste domínio.
+                Se definido, esta coleção e todos os seus espaços responderão apenas neste domínio.
               </p>
             </div>
           </div>

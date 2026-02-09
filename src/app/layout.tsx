@@ -80,14 +80,14 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
       >
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Navbar collections={collections} />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
               {session && <AdminSidebar collections={collections} />}
-              <main className="flex-1 overflow-y-auto no-scrollbar">
+              <main className="flex-1 overflow-y-auto no-scrollbar relative">
                 {children}
               </main>
             </div>

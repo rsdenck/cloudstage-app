@@ -87,25 +87,25 @@ export default function DocumentEditorPage({
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden bg-black text-white">
       {/* Editor Header */}
-      <header className="h-14 border-b bg-white flex items-center justify-between px-6 shrink-0">
+      <header className="h-14 border-b border-white/5 bg-[#050505] flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-4">
           <Link
             href={`/admin/collections/${doc.node.collection.id}`}
-            className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors"
+            className="p-2 hover:bg-white/5 rounded-full text-zinc-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex items-center text-sm text-slate-500">
+          <div className="flex items-center text-sm text-zinc-500">
             <span>{doc.node.collection.name}</span>
             <ChevronRight className="w-4 h-4 mx-1" />
-            <span className="font-semibold text-slate-900">{doc.node.name}</span>
+            <span className="font-semibold text-white">{doc.node.name}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-xs text-slate-400 mr-4">
+          <div className="flex items-center gap-1 text-xs text-zinc-500 mr-4">
             {isSaving ? (
               <>
                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -119,12 +119,12 @@ export default function DocumentEditorPage({
             ) : null}
           </div>
 
-          <div className="flex bg-slate-100 p-1 rounded-lg">
+          <div className="flex bg-white/5 p-1 rounded-lg border border-white/10">
             <button
               onClick={() => setIsEditing(true)}
               className={cn(
                 "px-3 py-1 text-xs font-medium rounded-md flex items-center gap-1.5 transition-all",
-                isEditing ? "bg-white shadow-sm text-blue-600" : "text-slate-600 hover:text-slate-900"
+                isEditing ? "bg-green-500/10 text-green-400 shadow-sm" : "text-zinc-400 hover:text-white"
               )}
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -134,7 +134,7 @@ export default function DocumentEditorPage({
               onClick={() => setIsEditing(false)}
               className={cn(
                 "px-3 py-1 text-xs font-medium rounded-md flex items-center gap-1.5 transition-all",
-                !isEditing ? "bg-white shadow-sm text-blue-600" : "text-slate-600 hover:text-slate-900"
+                !isEditing ? "bg-green-500/10 text-green-400 shadow-sm" : "text-zinc-400 hover:text-white"
               )}
             >
               <Eye className="w-3.5 h-3.5" />
@@ -142,12 +142,12 @@ export default function DocumentEditorPage({
             </button>
           </div>
 
-          <div className="h-6 w-px bg-slate-200 mx-1" />
+          <div className="h-6 w-px bg-white/10 mx-1" />
 
           {doc.status === "PUBLISHED" ? (
             <button
               onClick={() => handleSave("DRAFT")}
-              className="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg hover:bg-slate-50 flex items-center gap-1.5"
+              className="px-3 py-1.5 text-xs font-medium border border-white/10 rounded-lg hover:bg-white/5 text-zinc-300 flex items-center gap-1.5 transition-all"
             >
               <Lock className="w-3.5 h-3.5" />
               Mudar para Rascunho
@@ -155,7 +155,7 @@ export default function DocumentEditorPage({
           ) : (
             <button
               onClick={() => handleSave("PUBLISHED")}
-              className="px-3 py-1.5 text-xs font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1.5"
+              className="px-3 py-1.5 text-xs font-medium bg-green-600/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-600/30 flex items-center gap-1.5 transition-all"
             >
               <Globe className="w-3.5 h-3.5" />
               Publicar
@@ -165,7 +165,7 @@ export default function DocumentEditorPage({
           <button
             onClick={() => handleSave()}
             disabled={isSaving}
-            className="px-4 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1.5"
+            className="px-4 py-1.5 text-xs font-bold bg-white text-black rounded-lg hover:bg-zinc-200 disabled:opacity-50 flex items-center gap-1.5 transition-all"
           >
             <Save className="w-3.5 h-3.5" />
             Salvar
@@ -176,16 +176,16 @@ export default function DocumentEditorPage({
       {/* Editor Content */}
       <div className="flex-1 flex overflow-hidden">
         {isEditing ? (
-          <div className="flex-1 flex flex-col bg-slate-50">
+          <div className="flex-1 flex flex-col bg-[#0a0a0a]">
             <textarea
-              className="flex-1 p-8 outline-none resize-none bg-transparent font-mono text-sm leading-relaxed"
+              className="flex-1 p-8 outline-none resize-none bg-transparent font-mono text-sm leading-relaxed text-zinc-300 placeholder:text-zinc-700"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="# Comece a escrever seu markdown aqui..."
             />
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto bg-white">
+          <div className="flex-1 overflow-y-auto bg-black">
             <div className="max-w-4xl mx-auto px-8 py-12">
               <MarkdownRenderer content={content} />
             </div>

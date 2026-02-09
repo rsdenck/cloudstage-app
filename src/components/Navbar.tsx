@@ -44,7 +44,7 @@ export function Navbar({ collections }: NavbarProps) {
             <span>Home</span>
           </Link>
 
-          {!session && collections.map((item) => (
+          {collections.map((item) => (
             <Link
               key={item.id}
               href={`/docs/${item.slug}`}

@@ -61,10 +61,27 @@ export function AdminTree({ initialTree, collectionId, collectionSlug }: AdminTr
         setNewName("");
         setIsAdding(null);
         router.refresh();
-        // In a real app, we'd update the local state more gracefully
-        // For now, let's just use router.refresh() and wait for server to provide new data
-        // Or re-fetch the tree.
-        window.location.reload(); // Simple way to sync for now
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMoveNode = async (nodeId: string, newParentId: string | null) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/nodes/${nodeId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parentId: newParentId }),
+      });
+
+      if (res.ok) {
+        router.refresh();
+        window.location.reload();
       }
     } catch (error) {
       console.error(error);
@@ -118,7 +135,18 @@ export function AdminTree({ initialTree, collectionId, collectionSlug }: AdminTr
         </div>
       )}
 
-      <div className="space-y-1">
+      <div 
+        className="space-y-1 min-h-[50px]"
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const nodeId = e.dataTransfer.getData("nodeId");
+          if (nodeId) handleMoveNode(nodeId, null);
+        }}
+      >
         {tree.map((node) => (
           <AdminTreeItem
             key={node.id}
@@ -131,6 +159,7 @@ export function AdminTree({ initialTree, collectionId, collectionSlug }: AdminTr
             newName={newName}
             setNewName={setNewName}
             handleAddNode={handleAddNode}
+            handleMoveNode={handleMoveNode}
             isLoading={isLoading}
           />
         ))}
@@ -149,6 +178,7 @@ function AdminTreeItem({
   newName,
   setNewName,
   handleAddNode,
+  handleMoveNode,
   isLoading
 }: {
   node: Node;
@@ -160,17 +190,45 @@ function AdminTreeItem({
   newName: string;
   setNewName: (val: string) => void;
   handleAddNode: (parentId: string | null, type: "FOLDER" | "DOCUMENT") => void;
+  handleMoveNode: (nodeId: string, newParentId: string | null) => void;
   isLoading: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(true);
+  const [isDragOver, setIsDragOver] = useState(false);
   const isFolder = node.type === "FOLDER";
   const isPublished = node.document?.status === "PUBLISHED";
 
   return (
-    <div>
+    <div
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("nodeId", node.id);
+        e.stopPropagation();
+      }}
+      onDragOver={(e) => {
+        if (isFolder) {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragOver(true);
+        }
+      }}
+      onDragLeave={() => setIsDragOver(false)}
+      onDrop={(e) => {
+        if (isFolder) {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragOver(false);
+          const draggedNodeId = e.dataTransfer.getData("nodeId");
+          if (draggedNodeId && draggedNodeId !== node.id) {
+            handleMoveNode(draggedNodeId, node.id);
+          }
+        }
+      }}
+    >
       <div
         className={cn(
           "group flex items-center py-1.5 px-3 rounded-md text-[13px] hover:bg-white/5 border border-transparent hover:border-white/5 transition-all",
+          isDragOver && "bg-green-500/10 border-green-500/30",
           level > 0 && "ml-4"
         )}
       >

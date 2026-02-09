@@ -17,8 +17,20 @@ O **cloudstage** é uma plataforma de documentação inspirada no GitBook, focad
 - ![Next.js](https://img.shields.io/badge/-black?style=flat-square&logo=nextdotjs&logoColor=00ff00) **Core**: Next.js 15+ com App Router para máxima performance.
 - ![Tailwind](https://img.shields.io/badge/-black?style=flat-square&logo=tailwindcss&logoColor=00ff00) **Estilo**: Tailwind CSS 4 com tema Dark/Green exclusivo.
 - ![Prisma](https://img.shields.io/badge/-black?style=flat-square&logo=prisma&logoColor=00ff00) **Dados**: Prisma ORM com SQLite para persistência simples e eficaz.
-- ![Multi-domain](https://img.shields.io/badge/-black?style=flat-square&logo=internetexplorer&logoColor=00ff00) **Publicação**: Controle granular de domínios via Host Headers.
-- ![Markdown](https://img.shields.io/badge/-black?style=flat-square&logo=markdown&logoColor=00ff00) **Editor**: Suporte completo a Markdown com renderização otimizada.
+- ![Multi-domain](https://img.shields.io/badge/-black?style=flat-square&logo=internetexplorer&logoColor=00ff00) **Publicação**: Controle granular de domínios via Host Headers e subdomínios automáticos.
+- ![Icons](https://img.shields.io/badge/-black?style=flat-square&logo=google&logoColor=00ff00) **Personalização**: Suporte completo a **Emojis** e **Google Material Icons** para Workspaces, Coleções e Documentos.
+- ![Markdown](https://img.shields.io/badge/-black?style=flat-square&logo=markdown&logoColor=00ff00) **Editor**: Suporte completo a Markdown com renderização otimizada e gerenciamento de árvore de documentos.
+- ![DnD](https://img.shields.io/badge/-black?style=flat-square&logo=react&logoColor=00ff00) **UX**: Drag-and-drop para reordenar documentos e navegação por breadcrumbs.
+
+---
+
+## **Funcionalidades Recentes**
+
+- **Painel de Configurações**: Gerencie subdomínios, domínios customizados e visibilidade (Público/Privado) em um só lugar.
+- **Sistema de Ícones Híbrido**: Escolha entre milhares de ícones do Material Design ou Emojis nativos para facilitar a identificação visual.
+- **Navegação Inteligente**: Breadcrumbs automáticos e estrutura em árvore expansível (GitBook-style).
+- **Separação de Domínios**: Ambiente de administração seguro em subdomínio dedicado, separado do site público de documentação.
+- **Publicação em Um Clique**: Publique ou despublique coleções e documentos instantaneamente.
 
 ---
 

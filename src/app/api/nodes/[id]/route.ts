@@ -45,7 +45,7 @@ export async function PATCH(
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const { name, markdown, published, parentId } = await req.json();
+  const { name, markdown, published, parentId, icon } = await req.json();
 
   try {
     const updatedNode = await prisma.node.update({
@@ -54,6 +54,7 @@ export async function PATCH(
         ...(name && { name, slug: slugify(name) }),
         ...(published !== undefined && { published }),
         ...(parentId !== undefined && { parentId }),
+        ...(icon !== undefined && { icon: icon || null }),
         ...(markdown !== undefined && {
           content: {
             upsert: {

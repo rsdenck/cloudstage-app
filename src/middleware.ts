@@ -15,11 +15,30 @@ export default withAuth(
     // 2. Lógica de Resolução Multi-tenant (GitBook Style)
     // Se não for domínio de admin, resolvemos como site público
     if (!isAdminDomain) {
-      // O hostname será usado para buscar o 'Site' no banco
-      // Ex: docs.cliente.com -> Site.domain == 'docs.cliente.com'
-      // app.cloudstage.com.br/docs/slug -> Site.slug == 'slug'
+      // 2.1 Resolução por Subdomínio (ex: site1.cloudstage.com.br)
+      const parts = hostname.split(".");
+      if (parts.length >= 3 && parts[parts.length - 2] === "cloudstage" && parts[parts.length - 1] === "com" && parts[parts.length - 0] === "br") {
+        // Isso é complexo por causa do .com.br, vamos simplificar:
+      }
+
+      // Versão simplificada: se não for app.* ou admin.*, mas terminar em .cloudstage.com.br
+      if (hostname.endsWith(".cloudstage.com.br") && 
+          !hostname.startsWith("app.") && 
+          !hostname.startsWith("admin.")) {
+        const siteSlug = hostname.split(".")[0];
+        url.pathname = `/_sites/${siteSlug}${nextUrl.pathname}`;
+        return NextResponse.rewrite(url);
+      }
+
+      // 2.2 Resolução por Domínio Customizado (ex: docs.empresa.com)
+      if (!hostname.endsWith(".cloudstage.com.br") && !hostname.includes("localhost")) {
+        // Aqui precisaríamos de uma busca no banco para saber qual site tem esse domain
+        // Mas como middleware é edge, podemos usar uma rota de cache ou apenas reescrever para uma rota que trate isso
+        url.pathname = `/_sites/_domain/${hostname}${nextUrl.pathname}`;
+        return NextResponse.rewrite(url);
+      }
       
-      // Se estiver no path /docs, tratamos como resolução por slug de site
+      // 2.3 Resolução por Path (ex: app.cloudstage.com.br/docs/slug)
       if (nextUrl.pathname.startsWith("/docs")) {
         const segments = nextUrl.pathname.split("/").filter(Boolean);
         if (segments.length >= 2) {

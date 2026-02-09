@@ -15,11 +15,13 @@ import {
   Shield
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IconDisplay } from "./IconDisplay";
 
 interface Collection {
   id: string;
   name: string;
   slug: string;
+  icon?: string | null;
 }
 
 interface NavbarProps {
@@ -34,17 +36,16 @@ export function Navbar({ collections }: NavbarProps) {
   return (
     <nav className="h-14 border-b border-border bg-navbar flex items-center justify-between px-4 sticky top-0 z-50">
       <div className="flex items-center gap-6 overflow-x-auto no-scrollbar">
-        <Link href={isAdminPage ? "/admin" : "/"} className="flex items-center gap-2 shrink-0 group">
-          <div className="p-1.5 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-all">
-            <Cloud className="w-5 h-5 text-green-500 fill-green-500/20" />
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="text-sm font-bold tracking-tight text-white group-hover:text-green-400 transition-colors">cloudstage</span>
-            {isAdminPage && (
-              <span className="text-[9px] font-bold text-green-500 uppercase tracking-widest mt-0.5">Admin</span>
-            )}
-          </div>
-        </Link>
+        {!isAdminPage && (
+          <Link href="/" className="flex items-center gap-2 shrink-0 group">
+            <div className="p-1.5 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-all">
+              <Cloud className="w-5 h-5 text-green-500 fill-green-500/20" />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-sm font-bold tracking-tight text-white group-hover:text-green-400 transition-colors">cloudstage</span>
+            </div>
+          </Link>
+        )}
 
         {/* Links Públicos - Apenas visíveis quando não estamos no admin */}
         {!isAdminPage && (
@@ -67,10 +68,11 @@ export function Navbar({ collections }: NavbarProps) {
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 text-[12px] rounded-md transition-all whitespace-nowrap group",
                   pathname.startsWith(`/docs/${item.slug}`) ? "bg-white/5 text-green-400" : "text-slate-400 hover:text-green-400"
-                )}
-              >
-                <span>{item.name}</span>
-              </Link>
+              )}
+            >
+              <IconDisplay icon={item.icon} className="text-[14px] leading-none" />
+              <span>{item.name}</span>
+            </Link>
             ))}
           </div>
         )}
@@ -91,45 +93,6 @@ export function Navbar({ collections }: NavbarProps) {
             </div>
           </div>
         )}
-
-        <div className="flex items-center gap-2 ml-2 pl-4 border-l border-border">
-          {session ? (
-            <>
-              {!isAdminPage ? (
-                <Link
-                  href="/admin"
-                  className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 text-green-500 hover:bg-green-500/20 rounded-lg text-xs font-bold transition-all border border-green-500/20"
-                >
-                  <Shield className="w-3.5 h-3.5" />
-                  Painel Admin
-                </Link>
-              ) : (
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 px-3 py-1.5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/10"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  Ver Site Público
-                </Link>
-              )}
-              <button
-                onClick={() => signOut()}
-                className="p-2 hover:bg-red-500/10 rounded-full text-slate-400 hover:text-red-500 transition-colors"
-                title="Sair"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/admin/login"
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/10"
-            >
-              <Settings className="w-3.5 h-3.5" />
-              Login
-            </Link>
-          )}
-        </div>
       </div>
     </nav>
   );

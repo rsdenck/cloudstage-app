@@ -14,40 +14,33 @@ export async function PATCH(
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const { name, slug, description, customDomain, isDefault, icon } = await req.json();
+  const { name, slug, domain, status, icon } = await req.json();
+  
+  if (!name && !slug && !domain && !status && !icon) {
+    return new NextResponse("At least one field is required", { status: 400 });
+  }
 
   try {
-    // Se estiver marcando como padrão, desmarcar os outros do mesmo site
-    if (isDefault) {
-      const collection = await prisma.collection.findUnique({
-        where: { id },
-        select: { siteId: true }
-      });
-      
-      if (collection) {
-        await prisma.collection.updateMany({
-          where: { siteId: collection.siteId },
-          data: { isDefault: false }
-        });
-      }
-    }
-
-    const updatedCollection = await prisma.collection.update({
+    const site = await prisma.site.update({
       where: { id },
       data: {
         ...(name && { name }),
         ...(slug && { slug: slugify(slug) }),
-        ...(description !== undefined && { description }),
-        ...(customDomain !== undefined && { customDomain }),
-        ...(isDefault !== undefined && { isDefault }),
+        ...(domain !== undefined && { domain: domain || null }),
+        ...(status && { status }),
         ...(icon !== undefined && { icon: icon || null }),
       },
     });
 
-    return NextResponse.json(updatedCollection);
+    return NextResponse.json(site);
   } catch (error: any) {
-    console.error("Erro ao atualizar coleção:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("PATCH /api/sites/[id] error details:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+      stack: error.stack
+    });
+    return new NextResponse(error.message || "Internal Server Error", { status: 500 });
   }
 }
 
@@ -62,13 +55,13 @@ export async function DELETE(
   }
 
   try {
-    // Note: This will delete all nodes associated with the collection due to cascade or manual check
-    await prisma.collection.delete({
+    await prisma.site.delete({
       where: { id },
     });
+
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error("Erro ao excluir coleção:", error);
+    console.error("DELETE /api/sites/[id] error:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

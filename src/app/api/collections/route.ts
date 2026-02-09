@@ -30,9 +30,9 @@ export async function POST(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const { name, description, customDomain } = await req.json();
-  if (!name) {
-    return new NextResponse("Name is required", { status: 400 });
+  const { name, siteId } = await req.json();
+  if (!name || !siteId) {
+    return new NextResponse("Name and Site ID are required", { status: 400 });
   }
 
   const slug = slugify(name);
@@ -41,9 +41,8 @@ export async function POST(req: Request) {
     const collection = await prisma.collection.create({
       data: {
         name,
-        description,
         slug,
-        customDomain: customDomain || null,
+        siteId,
       },
     });
 

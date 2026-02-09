@@ -24,7 +24,7 @@ export function Sidebar({ tree, collectionSlug, isAdmin = false }: SidebarProps)
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r border-border bg-sidebar h-[calc(100vh-56px)] overflow-y-auto flex flex-col sticky top-14">
+    <aside className="w-64 border-r border-border bg-sidebar h-screen overflow-y-auto flex flex-col sticky top-0">
       <div className="flex-1 p-3 space-y-1">
         {tree.map((node) => (
           <SidebarItem

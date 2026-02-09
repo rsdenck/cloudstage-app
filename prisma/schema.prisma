@@ -39,6 +39,7 @@ model Site {
   name        String
   slug        String       @unique
   domain      String?      @unique // Ex: docs.empresa.com
+  icon        String?      // Ícone do workspace
   status      PublishStatus @default(DRAFT)
   collections Collection[]
   createdAt   DateTime     @default(now())
@@ -51,6 +52,7 @@ model Collection {
   site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
   name      String
   slug      String
+  icon      String?  // Ícone da coleção
   isDefault Boolean  @default(false)
   nodes     Node[]
   createdAt DateTime @default(now())
@@ -69,6 +71,7 @@ model Node {
   type         NodeType
   name         String
   slug         String
+  icon         String?      // Ícone do documento/pasta
   order        Int          @default(0)
   published    Boolean      @default(false)
   content      PageContent?

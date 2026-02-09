@@ -7,13 +7,7 @@ export async function getAdminSidebarData() {
       collections: {
         include: {
           nodes: {
-            where: { parentId: null },
             orderBy: { order: "asc" },
-            include: {
-              children: {
-                orderBy: { order: "asc" },
-              },
-            },
           },
         },
       },

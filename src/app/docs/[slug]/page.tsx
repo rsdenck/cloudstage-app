@@ -12,18 +12,16 @@ export default async function CollectionPage({
   
   let collection = null;
   try {
-    collection = await prisma.collection.findUnique({
+    collection = await prisma.collection.findFirst({
       where: { slug },
       include: {
         nodes: {
           where: {
-            type: "DOCUMENT",
-            document: {
-              status: "PUBLISHED"
-            }
+            type: "PAGE",
+            published: true,
           },
           take: 1,
-          orderBy: { position: "asc" }
+          orderBy: { order: "asc" }
         }
       }
     });

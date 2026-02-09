@@ -48,7 +48,7 @@ async function main() {
   // 4. Criar Árvore de Nodes (Hierarquia Infinita)
   // Node Pai (Pasta)
   const parentNode = await prisma.node.upsert({
-    where: { collectionId_parentId_slug: { collectionId: collection.id, parentId: null, slug: "guia" } },
+    where: { collectionId_slug: { collectionId: collection.id, slug: "guia" } },
     update: {},
     create: {
       name: "Guia de Início",
@@ -62,7 +62,7 @@ async function main() {
 
   // Node Filho (Página)
   const childNode = await prisma.node.upsert({
-    where: { collectionId_parentId_slug: { collectionId: collection.id, parentId: parentNode.id, slug: "instalacao" } },
+    where: { collectionId_slug: { collectionId: collection.id, slug: "instalacao" } },
     update: {},
     create: {
       name: "Instalação",

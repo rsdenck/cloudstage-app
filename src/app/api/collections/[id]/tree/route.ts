@@ -5,13 +5,13 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { slug } = await params;
+  const { id } = await params;
   const session = await getServerSession(authOptions);
 
   const collection = await prisma.collection.findUnique({
-    where: { slug },
+    where: { id },
   });
 
   if (!collection) {
@@ -21,11 +21,11 @@ export async function GET(
   // Fetch all nodes for this collection
   const allNodes = await prisma.node.findMany({
     where: { collectionId: collection.id },
-    orderBy: { position: "asc" },
+    orderBy: { order: "asc" },
     include: {
-      document: {
+      content: {
         select: {
-          status: true,
+          id: true,
         },
       },
     },
@@ -39,15 +39,11 @@ export async function GET(
         const children = buildTree(node.id);
         
         // Filter out drafts for public users if it's a document
-        // Or filter out folders that only contain drafts
         if (!session) {
-          if (node.type === "DOCUMENT" && node.document?.status !== "PUBLISHED") {
+          if (node.type === "PAGE" && !node.published) {
             return null;
           }
           if (node.type === "FOLDER" && children.length === 0) {
-            // This is a simplified check: folders without public children are hidden
-            // But they might have public documents deeper. 
-            // The recursive nature of buildTree handles this.
             return null;
           }
         }

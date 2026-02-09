@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { notFound } from "next/navigation";
 
 async function getTree(slug: string) {
-  const collection = await prisma.collection.findUnique({
+  const collection = await prisma.collection.findFirst({
     where: { slug },
   });
 
@@ -11,24 +11,25 @@ async function getTree(slug: string) {
 
   const allNodes = await prisma.node.findMany({
     where: { collectionId: collection.id },
-    orderBy: { position: "asc" },
+    orderBy: { order: "asc" },
     include: {
-      document: {
+      content: {
         select: {
-          status: true,
+          id: true,
         },
       },
     },
   });
 
-  const buildTree = (parentId: string | null = null): any[] => {
+  const buildTree = (parentId: string | null = null, currentPath: string[] = []): any[] => {
     return allNodes
       .filter((node) => node.parentId === parentId)
       .map((node) => {
-        const children = buildTree(node.id);
+        const nodePath = [...currentPath, node.slug];
+        const children = buildTree(node.id, nodePath);
         
         // Public view: only show published documents and folders with published children
-        if (node.type === "DOCUMENT" && node.document?.status !== "PUBLISHED") {
+        if (node.type === "PAGE" && !node.published) {
           return null;
         }
         if (node.type === "FOLDER" && children.length === 0) {
@@ -37,6 +38,7 @@ async function getTree(slug: string) {
 
         return {
           ...node,
+          fullPath: nodePath.join("/"),
           children,
         };
       })

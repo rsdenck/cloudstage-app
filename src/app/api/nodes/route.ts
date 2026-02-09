@@ -18,11 +18,11 @@ export async function GET(req: Request) {
       collectionId,
       parentId: parentId || null,
     },
-    orderBy: { position: "asc" },
+    orderBy: { order: "asc" },
     include: {
-      document: {
+      content: {
         select: {
-          status: true,
+          id: true,
         }
       },
       _count: {
@@ -50,6 +50,13 @@ export async function POST(req: Request) {
 
   try {
     const node = await prisma.$transaction(async (tx) => {
+      // Get max order in current folder
+      const maxOrderNode = await tx.node.findFirst({
+        where: { collectionId, parentId: parentId || null },
+        orderBy: { order: 'desc' },
+      });
+      const nextOrder = (maxOrderNode?.order ?? -1) + 1;
+
       const newNode = await tx.node.create({
         data: {
           name,
@@ -57,15 +64,15 @@ export async function POST(req: Request) {
           type,
           collectionId,
           parentId: parentId || null,
+          order: nextOrder,
         },
       });
 
-      if (type === "DOCUMENT") {
-        await tx.document.create({
+      if (type === "PAGE") {
+        await tx.pageContent.create({
           data: {
             nodeId: newNode.id,
-            content: `# ${name}\n\nComece a escrever aqui...`,
-            status: "DRAFT",
+            markdown: `# ${name}\n\nComece a escrever aqui...`,
           },
         });
       }
@@ -78,6 +85,7 @@ export async function POST(req: Request) {
     if (error.code === 'P2002') {
       return new NextResponse("A node with this name already exists in this folder", { status: 400 });
     }
+    console.error("Erro ao criar node:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

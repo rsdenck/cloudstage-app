@@ -46,29 +46,39 @@ export default function DocumentEditorPage({
   const router = useRouter();
 
   useEffect(() => {
-    fetch(`/api/documents/${id}`)
+    fetch(`/api/nodes/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        setDoc(data);
-        setContent(data.content);
+        setDoc({
+          id: data.id,
+          content: data.content?.markdown || "",
+          status: data.published ? "PUBLISHED" : "DRAFT",
+          node: {
+            id: data.id,
+            name: data.name,
+            collection: data.collection
+          }
+        });
+        setContent(data.content?.markdown || "");
       });
   }, [id]);
 
   const handleSave = async (newStatus?: string) => {
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/documents/${id}`, {
+      const isPublished = newStatus ? newStatus === "PUBLISHED" : doc?.status === "PUBLISHED";
+      const res = await fetch(`/api/nodes/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content,
-          status: newStatus || doc?.status,
+          markdown: content,
+          published: isPublished,
         }),
       });
 
       if (res.ok) {
         const updated = await res.json();
-        setDoc((prev) => prev ? { ...prev, status: updated.status } : null);
+        setDoc((prev) => prev ? { ...prev, status: updated.published ? "PUBLISHED" : "DRAFT" } : null);
         setLastSaved(new Date());
       }
     } catch (error) {

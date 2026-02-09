@@ -17,18 +17,16 @@ export default async function DocumentPage({
     where: {
       slug: docSlug,
       collection: { slug },
-      type: "DOCUMENT",
-      document: {
-        status: "PUBLISHED",
-      },
+      type: "PAGE",
+      published: true,
     },
     include: {
-      document: true,
+      content: true,
       collection: true,
     },
   });
 
-  if (!node || !node.document) {
+  if (!node || !node.content) {
     notFound();
   }
 
@@ -36,12 +34,12 @@ export default async function DocumentPage({
   const nextNode = await prisma.node.findFirst({
     where: {
       collectionId: node.collectionId,
-      type: "DOCUMENT",
+      type: "PAGE",
       id: { not: node.id },
-      position: { gt: node.position },
-      document: { status: "PUBLISHED" }
+      order: { gt: node.order },
+      published: true
     },
-    orderBy: { position: "asc" }
+    orderBy: { order: "asc" }
   });
 
   // Build breadcrumbs
@@ -69,11 +67,11 @@ export default async function DocumentPage({
             </h1>
           </div>
           <p className="text-slate-400 text-lg">
-            Instalação e configuração do sistema.
+            {node.name} documentation.
           </p>
         </header>
 
-        <MarkdownRenderer content={node.document.content} />
+        <MarkdownRenderer content={node.content.markdown} />
       </article>
 
       {nextNode && (
@@ -92,9 +90,9 @@ export default async function DocumentPage({
       )}
 
       <footer className="mt-20 pt-8 border-t border-border flex justify-between items-center text-[13px] text-slate-500">
-        <span>Última atualização em {new Date(node.document.updatedAt).toLocaleDateString("pt-BR")}</span>
+        <span>Última atualização em {new Date(node.content.updatedAt).toLocaleDateString("pt-BR")}</span>
         <div className="flex gap-4">
-          <button className="hover:text-white transition-colors">Editar página</button>
+          <Link href={`/admin/editor/${node.id}`} className="hover:text-white transition-colors">Editar página</Link>
           <button className="hover:text-white transition-colors">Feedback</button>
         </div>
       </footer>

@@ -10,7 +10,7 @@ interface Node {
   id: string;
   name: string;
   slug: string;
-  type: "FOLDER" | "DOCUMENT";
+  type: "FOLDER" | "PAGE";
   children?: Node[];
 }
 
@@ -64,8 +64,8 @@ function SidebarItem({
   const isFolder = node.type === "FOLDER";
   
   const href = isAdmin 
-    ? `/admin/collections/${collectionSlug}/nodes/${node.id}`
-    : `/docs/${collectionSlug}/${node.slug}`;
+    ? `/admin/editor/${node.id}`
+    : `/docs/${collectionSlug}/${node.fullPath || node.slug}`;
 
   const isActive = pathname === href;
 
